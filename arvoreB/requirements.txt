@@ -1,0 +1,5 @@
+asarPy==1.0.1
+asttokens==2.4.1
+icontract==2.7.1
+six==1.17.0
+typing_extensions==4.14.0
