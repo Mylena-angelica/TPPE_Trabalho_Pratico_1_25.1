@@ -4,7 +4,6 @@ from no import NoArvoreB
 from contratos import chaves_em_ordem, folhas_no_mesmo_nivel, filhos_corretos
 
 
-
 class ArvoreB:
     def __init__(self, ordem: int):
         self.ordem = ordem
@@ -29,12 +28,34 @@ class ArvoreB:
     def inserir(self, chave: int):
         raiz = self.raiz
         if raiz.cheia():
+            print("Raiz cheia: lógica de divisão será implementada.")
             nova_raiz = NoArvoreB(self.ordem, folha=False)
             nova_raiz.filhos.append(raiz)
             self.raiz = nova_raiz
-            print("Raiz cheia: lógica de divisão será implementada depois.")
+            
+            self.dividir_filho(nova_raiz, 0)
+            
+            self.raiz = nova_raiz
+            self._inserir_nao_cheio(nova_raiz, chave)
         else:
             self._inserir_nao_cheio(raiz, chave)
+
+    def dividir_filho(self, nova_raiz, i):
+        ordem = self.ordem
+        no_cheio_velho = nova_raiz.filhos[i] 
+        no_novo = NoArvoreB(ordem=self.ordem, folha=no_cheio_velho.folha)  
+
+        # Transfere t-1 chaves do final para o no_novo nó
+        no_novo.chaves = no_cheio_velho.chaves[ordem:]       # direita
+        chave_meio = no_cheio_velho.chaves[ordem - 1]            # chave que vai virar meio
+        no_cheio_velho.chaves = no_cheio_velho.chaves[:ordem - 1]   # esquerda
+
+        if not no_cheio_velho.folha:
+            no_novo.filhos = no_cheio_velho.filhos[ordem:]        
+            no_cheio_velho.filhos = no_cheio_velho.filhos[:ordem]       
+
+        nova_raiz.chaves.insert(i, chave_meio) # nova raiz adiciona a chave do meio 
+        nova_raiz.filhos.insert(i + 1, no_novo)
 
     def _inserir_nao_cheio(self, no: NoArvoreB, chave: int):
         i = len(no.chaves) - 1
@@ -49,5 +70,15 @@ class ArvoreB:
                 i -= 1
             i += 1
             if no.filhos[i].cheia():
-                print("Filho cheio: lógica de divisão futura.")
+                print("Filho cheio: lógica de divisão implementada.")
+                self.dividir_filho(no, i)
+                if chave > no.chaves[i]:
+                    i+=1
             self._inserir_nao_cheio(no.filhos[i], chave)
+    
+    def imprimir(self, no=None, nivel=0):
+        if no is None:
+            no = self.raiz
+        print("  " * nivel + f"Nível {nivel}: {no.chaves}")
+        for filho in no.filhos:
+            self.imprimir(filho, nivel + 1)
